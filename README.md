@@ -101,6 +101,7 @@ Examples:
 
 Enable and start the service:
 ```bash
+chmod a+r /etc/pgdoctor.cfg
 sudo systemctl daemon-reload
 sudo systemctl enable pgdoctor
 sudo systemctl start pgdoctor
