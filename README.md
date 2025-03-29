@@ -2,6 +2,10 @@
 
 Simple, lightweight, web service used to define and run custom health checks on PostgreSQL instances. This is a modified version adapted for Amazon Linux 2023.
 
+Repository: https://github.com/WangYunzhang/pgdoctor
+
+This is a fork of [original pgDoctor](https://github.com/thumbtack/pgdoctor) with modifications to support Amazon Linux 2023 and remove certain features.
+
 ## Modifications
 - Removed streaming replication lag check functionality
 - Updated systemd service configuration for Amazon Linux 2023
