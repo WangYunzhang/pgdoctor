@@ -1,12 +1,16 @@
 [Unit]
-Description=Unit for pgDoctor
+Description=PostgreSQL Health Check Service
 After=postgresql.service
 Requires=postgresql.service
 
 [Service]
 TimeoutStartSec=0
 Type=simple
-ExecStart=/usr/bin/pgdoctor
+ExecStart=/usr/local/bin/pgdoctor
+Restart=on-failure
+RestartSec=5
+User=postgres
+Group=postgres
 
 [Install]
 WantedBy=multi-user.target

@@ -24,9 +24,8 @@
 /* map strings from the configuration file to equivalent constants */
 #define MK_CONFIG_LIST(f) \
     f(HTTP_PORT) f(SYSLOG_FACILITY) f(PG_HOST) f(PG_PORT) f(PG_USER) \
-    f(PG_PASSWORD) f(PG_DATABASE) f(PG_CONNECTION_TIMEOUT) \
-    f(PG_MAX_REPLICATION_LAG) f(CUSTOM_CHECK)
-#define N_CONFIG_PARAMS 10
+    f(PG_PASSWORD) f(PG_DATABASE) f(PG_CONNECTION_TIMEOUT) f(CUSTOM_CHECK)
+#define N_CONFIG_PARAMS 9
 #define MK_CONFIG_PAIR(X) {X, #X},
 #define MK_CONFIG_ENUM(X) X,
 

@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -pedantic -std=c99 -I$(shell pg_config --includedir) -L$(shell pg_config --libdir)
+CFLAGS = -Wall -pedantic -std=c99 -fPIC -I$(shell pg_config --includedir) -L$(shell pg_config --libdir)
 LDFLAGS = -lmicrohttpd -lpq
 
 OBJECTS = $(filter-out main.o,$(patsubst %.c,%.o,$(wildcard *.c)))
@@ -7,7 +7,8 @@ OTHER = strconst.h
 BIN = pgdoctor
 BIN_TEST = $(BIN)_test
 CFG_FILE = $(BIN).cfg
-PREFIX = /usr/bin
+PREFIX = /usr/local/bin
+SYSCONFDIR = /etc
 
 ifdef DEBUG
 CFLAGS += -DDEBUG -g
@@ -28,11 +29,14 @@ $(BIN): main.c $(OBJECTS)
 
 install: $(BIN)
 	install -D -m 0755 $(BIN) $(DESTDIR)$(PREFIX)/$(BIN)
-	install -D -m 0600 $(CFG_FILE) $(DESTDIR)/etc/$(CFG_FILE)
+	install -D -m 0600 $(CFG_FILE) $(DESTDIR)$(SYSCONFDIR)/$(CFG_FILE)
+	mkdir -p $(DESTDIR)$(SYSCONFDIR)/systemd/system
+	install -D -m 0644 $(BIN).service $(DESTDIR)$(SYSCONFDIR)/systemd/system/$(BIN).service
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/$(BIN)
-	rm -f $(DESTDIR)/etc/$(CFG_FILE)
+	rm -f $(DESTDIR)$(SYSCONFDIR)/$(CFG_FILE)
+	rm -f $(DESTDIR)$(SYSCONFDIR)/systemd/system/$(BIN).service
 
 .PHONY: debian
 debian:

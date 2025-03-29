@@ -183,14 +183,6 @@ static int load_parameter(config_t config, const char *line)
         case PG_CONNECTION_TIMEOUT:
             load_int(&CFG_PG_TIMEOUT(config), value);
             return 1;
-        case PG_MAX_REPLICATION_LAG:
-            if (atoi(value) >= 0) {
-                custom_check = custom_check_create(STR_REPLICATION_LAG_QUERY,
-                                                   "<",
-                                                   value);
-                return append_custom_check(config, custom_check);
-            }
-            return 1;
         case SYSLOG_FACILITY:
             load_str(&CFG_SYSLOG_FACILITY(config), value);
             return 1;
