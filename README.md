@@ -1,59 +1,57 @@
-pgDoctor
-========
+# pgDoctor for Amazon Linux 2023
 
-Simple, lightweight, web service used to define and run custom health checks on PostgreSQL 
-instances.
+Simple, lightweight, web service used to define and run custom health checks on PostgreSQL instances. This is a modified version adapted for Amazon Linux 2023.
 
+## Modifications
+- Removed streaming replication lag check functionality
+- Updated systemd service configuration for Amazon Linux 2023
+- Adapted build system for AL2023
+- Improved error handling and logging
+- Added systemd service auto-restart capability
 
 ## Dependencies
-* Header files for `libpq5` (PostgreSQL library)
-* GNU `libmicrohttpd`
-* `check`, a unit test framework for C
-  
-On a Debian-based system, these can easily be installed by running
-  
-`sudo apt-get install libpq-dev libmicrohttpd-dev check`
 
-  
-## Build and install
+For Amazon Linux 2023:
+```bash
+# Install required development packages
+sudo dnf install -y gcc make
+sudo dnf install -y postgresql15-devel  # PostgreSQL development files
+sudo dnf install -y libmicrohttpd-devel # HTTP server library
+```
 
-* Running tests (optional):
-  
-  The default configuration parameters for running tests rely on a local PostgreSQL instance 
-  listening on port 5432. Connections will be established with the `postgres` user and no 
-  password.
-  
-  If this does not match the system you're using, simply edit the relevant `pg_*` parameters
-  on `tests/pgdoctor.cfg`.
-  
-  To actually run the tests all we need to do is execute 
-  
-    `make check`
-    
-  If the last line of the output shows something like `100%: Checks: X, Failures: 0, Errors: 0`,
-  where `X` is the number of checks performed, all is good.
+For running tests (optional):
+```bash
+sudo dnf install -y check-devel # Unit test framework
+```
+
+## Build and Install
 
 * Building:
-  
-    `make`
+```bash
+make
+```
 
-* Installing
+* Installing:
+```bash
+sudo make install
+```
 
-    `sudo make install`
-
+This will:
+- Install the binary to `/usr/local/bin/pgdoctor`
+- Install the configuration file to `/etc/pgdoctor.cfg`
+- Install the systemd service file to `/etc/systemd/system/pgdoctor.service`
 
 ## Configuration
-A default [configuration file](https://github.com/thumbtack/pgdoctor/blob/master/pgdoctor.cfg)
-is created under `/etc/pgdoctor.cfg`. Each setting is preceded by a comment describing it briefly.
 
+A default configuration file is created under `/etc/pgdoctor.cfg`. Each setting is preceded by a comment describing it briefly.
 
-### Runtime settings
+### Runtime Settings
 | Parameter        | Description           | Default  |
 | ------------- |-------------|-----|
 | `http_port`      | Port to listen on | 8071 |
 | `syslog_facility` | Syslog facility (local) to messages log to | `local7` |
 
-### Target PostgreSQL instance
+### Target PostgreSQL Instance
 | Parameter        | Description           | Default  |
 | ------------- |-------------|-----|
 | `pg_host` | Host name of the instance pgDoctor will connect to | `localhost` |
@@ -62,42 +60,65 @@ is created under `/etc/pgdoctor.cfg`. Each setting is preceded by a comment desc
 | `pg_password` | Password to use with `pg_user` | *empty* |
 | `pg_database` | Name of the database to connect to | `postgres` |
 
-### Health checks
+### Health Checks
 | Parameter        | Description           | Default  |
 | ------------- |-------------|-----|
 | `pg_connection_timeout` | Timeout (seconds) when connecting to PostgreSQL | 3 |
-| `pg_max_replication_lag` | Maximum acceptable delay (seconds) on streaming replication | -1 (disabled) |
 
-#### Custom health checks
-pgDoctor supports the definition of custom health checks in the form of arbitrary SQL queries &mdash; one
-check per line.
+### Custom Health Checks
+pgDoctor supports the definition of custom health checks in the form of arbitrary SQL queries — one check per line.
 
-These may be defined in two forms: 
-* a plain SQL query, and the health check is considered successful if and only if it is executed without
-any errors;
-* a SQL query (must return exactly one field) **and** a condition, in which case the health check 
-is considered successful when the query is executed without and errors *and* the condition 
-evaluates to `true`.
+These may be defined in two forms:
+* A plain SQL query (the health check is considered successful if and only if it is executed without any errors)
+* A SQL query (must return exactly one field) **and** a condition (the health check is considered successful when the query is executed without errors *and* the condition evaluates to `true`)
 
-Conditional checks are of the form
+Conditional checks are of the form:
 ```
-"QUERY" comparion_operator "VALUE"
+"QUERY" comparison_operator "VALUE"
 ```
-where `comparison_operator` is one of `<`, `>`, or `=`. `QUERY` is any valid SQL command 
-(surrounded by double-quotes), and `VALUE` (also surrounded by double-quotes) is the expected 
-result from `QUERY`. 
+where:
+- `comparison_operator` is one of `<`, `>`, or `=`
+- `QUERY` is any valid SQL command (surrounded by double-quotes)
+- `VALUE` is the expected result (also surrounded by double-quotes)
 
-When using `=`, a string comparison is performed. For both `<` and `>` floating point values are
-used. 
+When using `=`, a string comparison is performed. For both `<` and `>` floating point values are used.
 
----
+Examples:
+```
+# Simple check - passes if query executes successfully
+"SELECT 1"
 
-*Simple examples &mdash; each health check passes iff the query runs without any errors*
-* `"SELECT 1"`
-* `"SELECT NOW()"`
+# Conditional check - passes if on_rotation equals 1
+"SELECT on_rotation FROM maintenance WHERE hostname = 'production-replica3'" = "1"
+```
 
-*Conditional example &mdash; successful iff `on_rotation` equals `1`* 
-* `"SELECT on_rotation FROM maintenance WHERE hostname = 'production-replica3'" = "1"`
+## Service Management
 
-## Contact
-* [pgdoctor](https://groups.google.com/forum/#!forum/pgdoctor) group &mdash; general discussion list.
+Enable and start the service:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable pgdoctor
+sudo systemctl start pgdoctor
+```
+
+Check service status:
+```bash
+sudo systemctl status pgdoctor
+```
+
+Test the health check endpoint:
+```bash
+curl http://localhost:8071/
+```
+
+## Service Configuration
+
+The systemd service is configured to:
+- Run as the postgres user
+- Depend on postgresql.service
+- Auto-restart on failure
+- Use standard logging facilities
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
