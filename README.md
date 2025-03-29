@@ -19,7 +19,7 @@ For Amazon Linux 2023:
 ```bash
 # Install required development packages
 sudo dnf install -y gcc make
-sudo dnf install -y postgresql15-devel  # PostgreSQL development files
+sudo dnf install -y libpq-devel  # PostgreSQL development files
 sudo dnf install -y libmicrohttpd-devel # HTTP server library
 ```
 
