@@ -1,7 +1,7 @@
 [Unit]
 Description=PostgreSQL Health Check Service
-After=postgresql.service
-Requires=postgresql.service
+After=pgpool.service
+Requires=pgpool.service
 
 [Service]
 TimeoutStartSec=0
@@ -9,8 +9,8 @@ Type=simple
 ExecStart=/usr/local/bin/pgdoctor
 Restart=on-failure
 RestartSec=5
-User=postgres
-Group=postgres
+User=pgpool
+Group=pgpool
 
 [Install]
 WantedBy=multi-user.target

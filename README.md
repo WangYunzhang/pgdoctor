@@ -1,13 +1,13 @@
 # pgDoctor for Amazon Linux 2023
 
-Simple, lightweight, web service used to define and run custom health checks on PostgreSQL instances. This is a modified version adapted for Amazon Linux 2023.
+Simple, lightweight, web service used to define and run custom health checks on PostgreSQL instances. This is a modified version to adapte pgpool-II on Amazon Linux 2023.
 
 Repository: https://github.com/WangYunzhang/pgdoctor
 
-This is a fork of [original pgDoctor](https://github.com/thumbtack/pgdoctor) with modifications to support Amazon Linux 2023 and remove certain features.
+This is a fork of [original pgDoctor](https://github.com/thumbtack/pgdoctor) with modifications to support Amazon Linux 2023 and remove certain features， such as replica latency lag check tailored for Aurora PostgreSQL.
 
 ## Modifications
-- Removed streaming replication lag check functionality
+- Removed streaming replication lag check functionality for pgpool-II with Aurora PostgreSQL as the backend
 - Updated systemd service configuration for Amazon Linux 2023
 - Adapted build system for AL2023
 - Improved error handling and logging
@@ -120,10 +120,11 @@ curl http://localhost:8071/
 ## Service Configuration
 
 The systemd service is configured to:
-- Run as the postgres user
-- Depend on postgresql.service
+- Run as the pgpol user
+- Depend on pgpool.service
 - Auto-restart on failure
 - Use standard logging facilities
+- Change the as you need 
 
 ## License
 
